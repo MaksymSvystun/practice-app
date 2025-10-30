@@ -58,9 +58,30 @@ jobs:
     - name: Merge into HTML Report
       run: npx playwright merge-reports --reporter html ./all-blob-reports
 
+    - name: Create index page
+      run: node .github/workflows/create-index.js
+
     - name: Upload HTML report
       uses: actions/upload-artifact@v4
       with:
         name: html-report--attempt-${{ github.run_attempt }}
         path: playwright-report
         retention-days: 14
+
+    - name: Deploy report to GitHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./playwright-report
+        destination_dir: reports/${{ github.run_number }}
+        keep_files: true
+
+    - name: Deploy index page to GitHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        keep_files: true
+        include_files: index.html
