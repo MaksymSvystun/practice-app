@@ -14,11 +14,12 @@ jobs:
   playwright-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
+    # Uncomment below for sharded parallel execution across 4 runners
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     shardIndex: [1, 2, 3, 4]
+    #     shardTotal: [4]
     steps:
     - uses: actions/checkout@v5
     - uses: actions/setup-node@v5
@@ -30,13 +31,15 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Run Playwright tests
-      run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      run: npx playwright test
+      # For sharded execution, use: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
     - name: Upload blob report to GitHub Actions Artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
       with:
-        name: blob-report-${{ matrix.shardIndex }}
+        name: blob-report
+        # For sharded execution, use: blob-report-${{ matrix.shardIndex }}
         path: blob-report
         retention-days: 1
 
